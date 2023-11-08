@@ -19,16 +19,16 @@ for (var i = 0; i<= texSize; i++)
         data[3*texSize*i+3*j+1] = rawData[i*256+j];
         data[3*texSize*i+3*j+2] = rawData[i*256+j];
     }
-/* Draws in the XZ-plane
+//Draws in the XZ-plane
 var vertices = [
     vec4(0.0,  0.0,  0.0,  1.0),
     vec4(1.0,  0.0,  0.0,  1.0),
     vec4(1.0,  0.0,  1.0,  1.0),
     vec4(0.0,  0.0,  1.0,  1.0)
 ];
-*/
-/* Draws in the XY-plane */
-var vertices = [
+
+// Draws in the XY plane
+var vertices2 = [
     vec4(0.0,  0.0,  0.0,  1.0),
     vec4(1.0,  0.0,  0.0,  1.0),
     vec4(1.0,  1.0,  0.0,  1.0),
@@ -45,6 +45,8 @@ var texCoords = [
 var modelViewMatrix, projectionMatrix, nMatrix;
 
 var program;
+
+var vBuffer, vBuffer2;
 
 ////  Move Texture Configuration to a function
 
@@ -121,6 +123,55 @@ window.onload = function init() {
         fileReader.readAsDataURL(file);
     }
 
+    // document.getElementById('fileInput2').onchange = (e) => {
+    //     // Get the file data from the event variable
+    //     let file = e.target.files[0];
+    
+    //     // The JavaScript FileReader is used to load files, such as .txt or .png files
+    //     let fileReader = new FileReader();
+      
+
+    //     fileReader.onload = (e) => {
+    
+    //         // Grab the file from the event variable
+    //         let result = e.target.result;
+    
+    //         // Create an HTML <img>, which will we attach the file data to
+    //         let resultImage = new Image();
+    //         //resultImage.src = result;
+    
+    //         // Again, create the onload() function before loading the file data
+    //         resultImage.onload = () => {
+    //             // Create a blank canvas and a canvas context
+    //             // Canvas context is used to draw an image to the canvas
+    //             // let canvas = document.getElementById('gl-canvas');
+    //             let canvas = document.createElement('canvas');
+    //             let ctx = canvas.getContext("2d");
+    
+    //             // Render the loaded image to the canvas
+    //             ctx.drawImage(resultImage, 0, 0, resultImage.width, resultImage.height);
+    
+    //             // Get the image rendered to the canvas, returns a Uint8ClampedArray
+    //             let imageData = ctx.getImageData(0, 0, resultImage.width, resultImage.height);
+    //             console.log(imageData);
+    
+    //             // Convert to a Uint8Array (not necessary)
+    //             let image = new Uint8Array(resultImage.width * resultImage.height * 4);
+    //             for (let i = 0; i < resultImage.width * resultImage.height * 4; i++) image[i] = imageData.data[i];
+    
+    //             // Do something with that image
+    //             configureTexture2(imageData, resultImage.width, resultImage.height);
+    //         }
+    
+    //         // Start loading the image data
+    //         resultImage.src = result;
+    //     }
+    
+    //     // Read the image. Once this is finished, onload() will be called
+    //     // If you want to read a .txt file, use readAsText(file, "utf-8")
+    //     fileReader.readAsDataURL(file);
+    // }
+
 
 
 
@@ -128,7 +179,7 @@ window.onload = function init() {
 
 
     gl.viewport( 0, 0, canvas.width, canvas.height );
-    gl.clearColor( 1.0, 1.0, 1.0, 1.0 );
+    gl.clearColor( 0.9, 0.9, 0.9, 1.0 );
 
     gl.enable(gl.DEPTH_TEST);
     //
@@ -137,9 +188,13 @@ window.onload = function init() {
     program = initShaders(gl, "vertex-shader", "fragment-shader");
     gl.useProgram(program);
 
-    var vBuffer = gl.createBuffer();
+    vBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+
+    vBuffer2 = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer2);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices2), gl.STATIC_DRAW);
 
     var positionLoc = gl.getAttribLocation(program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
@@ -165,9 +220,10 @@ window.onload = function init() {
     document.getElementById("Button4").onclick = function(){phi += dr;};
     document.getElementById("Button5").onclick = function(){phi -= dr;};
 
-    projectionMatrix = ortho(-1.2, 1.2, -1.2, 1.2,-10.0,10.0);
+    projectionMatrix = ortho(-1.2, 1.2, -1.2, 1.2, -10.0, 10.0);
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "uProjectionMatrix"), false, flatten(projectionMatrix));
 
+    console.log(vertices)
     render();
 }
 
@@ -184,6 +240,24 @@ var render = function() {
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "uModelViewMatrix"), false, flatten(modelViewMatrix));
 
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+
+
+    //gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer2);
+    //gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices2), gl.STATIC_DRAW);
+    //gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+//    Draw the first buffer (vBuffer)
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+  //  Draw the second buffer (vBuffer2)
+    gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer2);
+    gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+
+
+
 
     requestAnimationFrame(render);
 }
