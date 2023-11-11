@@ -18,7 +18,7 @@ for (var i = 0; i<= texSize; i++)
         data[3*texSize*i+3*j+2] = rawData[i*256+j];
     }
 
-//Draws in the XZ-plane
+// Draws in the XZ-plane
 var vertices = [
     vec4(0.0,  0.0,  0.0,  1.0),
     vec4(1.0,  0.0,  0.0,  1.0),
@@ -55,132 +55,121 @@ var program;
 var vBuffer, vBuffer2, vBuffer3;
 var positionLoc;
 
-////  Move Texture Configuration to a function
+// Different variable for each texture
+var texture1, texture2, texture3;
 
-function configureTexture(image, width, height) {
-    console.log(width, height);
-    var texture = gl.createTexture();
-    gl.activeTexture(gl.TEXTURE0);
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
-    gl.generateMipmap(gl.TEXTURE_2D);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+// Variable to control which texture is being set in the file inputs
+var flag = -1;
+
+// Configure textures based on flag
+function configureTextures(image, width, height, flag) {
+    switch(flag) {
+        case 0:
+            console.log(flag)            
+            texture1 = gl.createTexture();
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture1);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        case 1:
+            texture2 = gl.createTexture();
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture2);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+        case 2:
+            texture3 = gl.createTexture();
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, texture3);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            gl.generateMipmap(gl.TEXTURE_2D);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST_MIPMAP_LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+
+    }
 }
 
 
 window.onload = function init() {
-
     canvas = document.getElementById( "gl-canvas" );
 
     gl = canvas.getContext('webgl2');
     if (!gl) { alert( "WebGL 2.0 isn't available" ); }
 
-    ////////  Callback for FileReader to use Image Data File /////
-    ////////    provided, and modified, with permission from student in CS 5382 Spring 2022 
-
-    document.getElementById('fileInput').onchange = (e) => {
-        // Get the file data from the event variable
+    document.getElementById('fileInput1').onchange = (e) => {
+        flag = 0;
         let file = e.target.files[0];
-    
-        // The JavaScript FileReader is used to load files, such as .txt or .png files
         let fileReader = new FileReader();
-      
-
         fileReader.onload = (e) => {
-    
-            // Grab the file from the event variable
             let result = e.target.result;
-    
-            // Create an HTML <img>, which will we attach the file data to
             let resultImage = new Image();
-            //resultImage.src = result;
-    
-            // Again, create the onload() function before loading the file data
             resultImage.onload = () => {
-                // Create a blank canvas and a canvas context
-                // Canvas context is used to draw an image to the canvas
-                // let canvas = document.getElementById('gl-canvas');
+
                 let canvas = document.createElement('canvas');
                 let ctx = canvas.getContext("2d");
     
-                // Render the loaded image to the canvas
                 ctx.drawImage(resultImage, 0, 0, resultImage.width, resultImage.height);
     
-                // Get the image rendered to the canvas, returns a Uint8ClampedArray
                 let imageData = ctx.getImageData(0, 0, resultImage.width, resultImage.height);
                 console.log(imageData);
     
-                // Convert to a Uint8Array (not necessary)
                 let image = new Uint8Array(resultImage.width * resultImage.height * 4);
                 for (let i = 0; i < resultImage.width * resultImage.height * 4; i++) image[i] = imageData.data[i];
-    
-                // Do something with that image
-                configureTexture(imageData, resultImage.width, resultImage.height);
+                configureTextures(imageData, resultImage.width, resultImage.height, flag)
             }
-    
-            // Start loading the image data
             resultImage.src = result;
         }
-    
-        // Read the image. Once this is finished, onload() will be called
-        // If you want to read a .txt file, use readAsText(file, "utf-8")
+
         fileReader.readAsDataURL(file);
     }
 
-    // document.getElementById('fileInput2').onchange = (e) => {
-    //     // Get the file data from the event variable
-    //     let file = e.target.files[0];
-    
-    //     // The JavaScript FileReader is used to load files, such as .txt or .png files
-    //     let fileReader = new FileReader();
-      
+    document.getElementById('fileInput2').onchange = (e) => {
+        flag = 1;
+        let file = e.target.files[0];
+        let fileReader = new FileReader();
+        fileReader.onload = (e) => {
+            let result = e.target.result;
+            let resultImage = new Image();
+            resultImage.onload = () => {
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext("2d");
+                ctx.drawImage(resultImage, 0, 0, resultImage.width, resultImage.height);
+                let imageData = ctx.getImageData(0, 0, resultImage.width, resultImage.height);
+                console.log(imageData);
+                let image = new Uint8Array(resultImage.width * resultImage.height * 4);
+                for (let i = 0; i < resultImage.width * resultImage.height * 4; i++) image[i] = imageData.data[i];
+                configureTextures(imageData, resultImage.width, resultImage.height, flag)
+            }
+            resultImage.src = result;
+        }
+        fileReader.readAsDataURL(file);
+    }
 
-    //     fileReader.onload = (e) => {
-    
-    //         // Grab the file from the event variable
-    //         let result = e.target.result;
-    
-    //         // Create an HTML <img>, which will we attach the file data to
-    //         let resultImage = new Image();
-    //         //resultImage.src = result;
-    
-    //         // Again, create the onload() function before loading the file data
-    //         resultImage.onload = () => {
-    //             // Create a blank canvas and a canvas context
-    //             // Canvas context is used to draw an image to the canvas
-    //             // let canvas = document.getElementById('gl-canvas');
-    //             let canvas = document.createElement('canvas');
-    //             let ctx = canvas.getContext("2d");
-    
-    //             // Render the loaded image to the canvas
-    //             ctx.drawImage(resultImage, 0, 0, resultImage.width, resultImage.height);
-    
-    //             // Get the image rendered to the canvas, returns a Uint8ClampedArray
-    //             let imageData = ctx.getImageData(0, 0, resultImage.width, resultImage.height);
-    //             console.log(imageData);
-    
-    //             // Convert to a Uint8Array (not necessary)
-    //             let image = new Uint8Array(resultImage.width * resultImage.height * 4);
-    //             for (let i = 0; i < resultImage.width * resultImage.height * 4; i++) image[i] = imageData.data[i];
-    
-    //             // Do something with that image
-    //             configureTexture2(imageData, resultImage.width, resultImage.height);
-    //         }
-    
-    //         // Start loading the image data
-    //         resultImage.src = result;
-    //     }
-    
-    //     // Read the image. Once this is finished, onload() will be called
-    //     // If you want to read a .txt file, use readAsText(file, "utf-8")
-    //     fileReader.readAsDataURL(file);
-    // }
-
-
-
-
-    //////////////////////////////////////////////////////////////
+    document.getElementById('fileInput3').onchange = (e) => {
+        flag = 2;
+        let file = e.target.files[0];
+        let fileReader = new FileReader();
+        fileReader.onload = (e) => {
+            let result = e.target.result;
+            let resultImage = new Image();
+            resultImage.onload = () => {
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext("2d");
+                ctx.drawImage(resultImage, 0, 0, resultImage.width, resultImage.height);
+                let imageData = ctx.getImageData(0, 0, resultImage.width, resultImage.height);
+                console.log(imageData);
+                let image = new Uint8Array(resultImage.width * resultImage.height * 4);
+                for (let i = 0; i < resultImage.width * resultImage.height * 4; i++) image[i] = imageData.data[i];
+                configureTextures(imageData, resultImage.width, resultImage.height, flag)
+            }
+                resultImage.src = result;
+        }
+        fileReader.readAsDataURL(file);
+    }
 
     canvas.height = 512
     canvas.width = 512
@@ -212,8 +201,9 @@ window.onload = function init() {
     gl.vertexAttribPointer( texCoordLoc, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(texCoordLoc);
 
-
-    configureTexture (data, texSize, texSize)
+    configureTextures(data, texSize, texSize, 0);
+    configureTextures(data, texSize, texSize, 1);
+    configureTextures(data, texSize, texSize, 2);
 
     document.getElementById("Button4").onclick = function(){phi += dr;};
     document.getElementById("Button5").onclick = function(){phi -= dr;};
@@ -225,7 +215,6 @@ window.onload = function init() {
 }
 
 var render = function() {
-
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
     var eye = vec3(2.0, 3.0*(1.0+Math.cos(phi)), 2.0);
@@ -234,15 +223,18 @@ var render = function() {
     modelViewMatrix = lookAt(eye, at, up);
     gl.uniformMatrix4fv( gl.getUniformLocation(program, "uModelViewMatrix"), false, flatten(modelViewMatrix));
 
-
-    // Draw the first buffer (vBuffer)
+    // Draw the first buffer
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture1);
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
     positionLoc = gl.getAttribLocation(program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 
-    // Draw the second buffer (vBuffer2)
+    // Draw the second buffer
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture2);
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer2);
     positionLoc = gl.getAttribLocation(program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
@@ -250,14 +242,13 @@ var render = function() {
     gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
 
     // Draw the third buffer (triangle)
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, texture3);
     gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer3);
     positionLoc = gl.getAttribLocation(program, "aPosition");
     gl.vertexAttribPointer(positionLoc, 4, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-
-    
-
 
     requestAnimationFrame(render);
 }
